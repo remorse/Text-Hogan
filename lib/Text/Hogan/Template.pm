@@ -2,6 +2,7 @@ package Text::Hogan::Template;
 
 use strict;
 use warnings;
+use feature 'say';
 
 use Scalar::Util qw(looks_like_number);
 use Clone qw(clone);
@@ -29,6 +30,7 @@ sub new {
 }
 
 sub r {
+    say "r()";
     my ($self, $context, $partials, $indent) = @_;
 
     if ($self->{'r'}) {
@@ -39,6 +41,7 @@ sub r {
 }
 
 sub v {
+    say "v()";
     my ($self, $str) = @_;
     $str = $self->t($str);
 
@@ -52,21 +55,25 @@ sub v {
 }
 
 sub t {
+    say "t()";
     my ($self, $str) = @_;
     return $str // "";
 }
 
 sub render {
+    say "render()";
     my ($self, $context, $partials, $indent) = @_;
     return $self->ri([ $context ], $partials || {}, $indent);
 }
 
 sub ri {
+    say "ri()";
     my ($self, $context, $partials, $indent) = @_;
     return $self->r($context, $partials, $indent);
 }
 
 sub ep {
+    say "ep()";
     my ($self, $symbol, $partials) = @_;
     my $partial = $self->{'partials'}{$symbol};
 
@@ -111,6 +118,7 @@ sub ep {
 
 # tries to find a partial in the current scope and render it
 sub rp {
+    say "rp()";
     my ($self, $symbol, $context, $partials, $indent) = @_;
     my $partial = $self->ep($symbol, $partials);
     if (!$partial) {
@@ -122,6 +130,7 @@ sub rp {
 
 # render a section
 sub rs {
+    say "rs()";
     my ($self, $context, $partials, $section) = @_;
     my $tail = $context->[-1];
     if (ref $tail ne 'ARRAY') {
@@ -138,6 +147,7 @@ sub rs {
 
 # maybe start a section
 sub s {
+    say "s()";
     my ($self, $val, $ctx, $partials, $inverted, $start, $end, $tags) = @_;
     my $pass;
     if ((ref($val) eq 'ARRAY') && !@$val) {
@@ -159,6 +169,7 @@ sub s {
 
 # find values with dotted names
 sub d {
+    say "d()";
     my ($self, $key, $ctx, $partials, $return_found) = @_;
     my $found;
 
@@ -224,6 +235,7 @@ sub d {
 
 # find values with normal names
 sub f {
+    say "f()";
     my ($self, $key, $ctx, $partials, $return_found) = @_;
     my $val = 0;
     my $v = undef;
@@ -261,6 +273,7 @@ sub f {
 
 # higher order templates
 sub ls {
+    say "ls()";
     my ($self, $func, $cx, $ctx, $partials, $text, $tags) = @_;
     my $old_tags = $self->{'options'}{'delimiters'};
 
@@ -273,6 +286,7 @@ sub ls {
 
 # compile text
 sub ct {
+    say "ct()";
     my ($self, $text, $cx, $partials) = @_;
     if ($self->{'options'}{'disable_lambda'}) {
         die "Lambda features disabled";
@@ -282,11 +296,13 @@ sub ct {
 
 # template result buffering
 sub b {
+    say "b()";
     my ($self, $s) = @_;
     $self->{'buf'} .= $s;
 }
 
 sub fl {
+    say "fl()";
     my ($self) = @_;
     my $r = $self->{'buf'};
     $self->{'buf'} = "";
@@ -295,10 +311,12 @@ sub fl {
 
 # method replace section
 sub ms {
+    say "ms()";
     my ($self, $func, $ctx, $partials, $inverted, $start, $end, $tags) = @_;
-    my $text_source;
     my $cx = $ctx->[-1];
-    my $result = $func->($self, $cx);
+
+    my $text_source = substr($self->{'text'}, $start, ($end - $start));;
+    my $result = $func->($text_source);
 
     if (ref($result) eq 'CODE') {
         if ($inverted) {
@@ -317,6 +335,7 @@ sub ms {
 
 # method replace variable
 sub mv {
+    say "mv()";
     my ($self, $func, $ctx, $partials) = @_;
     my $cx = $ctx->[-1];
 
@@ -330,6 +349,7 @@ sub mv {
 }
 
 sub sub {
+    say "sub()";
     my ($self, $name, $context, $partials, $indent) = @_;
     my $f = $self->{'subs'}{$name};
     if ($f) {
@@ -342,6 +362,7 @@ sub sub {
 ################################################
 
 sub find_in_scope {
+    say "find_in_scope()";
     my ($key, $scope, $do_model_get) = @_;
     my $val;
 
@@ -358,6 +379,7 @@ sub find_in_scope {
 }
 
 sub create_specialized_partial {
+    say "create_specialized_partial()";
     my ($instance, $subs, $partials, $stack_subs, $stack_partials, $stack_text) = @_;
 
     my $key;
@@ -395,6 +417,7 @@ sub create_specialized_partial {
 
 
 sub coerce_to_string {
+    say "coerce_to_string()";
     my ($str) = @_;
     return $str // "";
 }

@@ -29,14 +29,20 @@ my @spec_files = path("t", "specs")->children(qr/[.]yml$/);
 for my $file (@spec_files) {
     local $TODO;
     if ($file =~ m/~lambdas[.]yml$/) {
-        $TODO = "Lambdas not yet implemented!";
+    #   $TODO = "Lambdas not yet implemented!";
+    }
+    else {
+        next;
     }
 
     my $yaml = $file->slurp_utf8;
 
     my $specs = YAML::Load($yaml);
 
+    my $i = 0;
     for my $test (@{ $specs->{tests} }) {
+        $i++;
+        next if $i < 6;
         #
         # Handle true/false values
         #
@@ -63,7 +69,7 @@ for my $file (@spec_files) {
             $rendered,
             $test->{expected},
             "$test->{name} - $test->{desc}"
-        );
+        ) || last;
     }
 }
 
