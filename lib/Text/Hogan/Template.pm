@@ -319,10 +319,11 @@ sub ms {
 sub mv {
     my ($self, $func, $ctx, $partials) = @_;
     my $cx = $ctx->[-1];
-    my $result = $func->($self,$cx);
 
-    if (ref($result) eq 'CODE') {
-        return $self->ct(coerce_to_string($result->($self,$cx)), $cx, $partials);
+    my $result = $func->();
+
+    if ($result) {
+        return $self->{'c'}->compile($result)->render($cx, $partials);
     }
 
     return $result;
